@@ -353,8 +353,8 @@ h1 {
 
 .recipe-modal {
   display: grid;
-  grid-template-columns: minmax(220px, 0.7fr) minmax(0, 1fr);
-  width: min(980px, 100%);
+  grid-template-columns: minmax(220px, 360px) minmax(0, 1fr);
+  width: min(900px, 100%);
   max-height: min(760px, 92vh);
   overflow: hidden;
   border-radius: 8px;
@@ -368,7 +368,8 @@ h1 {
 
 .modal-media {
   position: relative;
-  min-height: 420px;
+  min-height: 360px;
+  background: var(--accent-soft);
 }
 
 .modal-content {
