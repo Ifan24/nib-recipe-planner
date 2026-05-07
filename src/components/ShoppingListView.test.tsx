@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ShoppingListView } from "./ShoppingListView";
 import type { ShoppingListItem } from "@/types/recipes";
@@ -41,7 +41,13 @@ describe("ShoppingListView", () => {
       />,
     );
 
-    expect(screen.getByText("2 ingredients from 2 recipes · 2 to buy")).toBeInTheDocument();
+    const summary = screen.getByRole("status", {
+      name: "2 ingredients from 2 recipes · 2 to buy",
+    });
+
+    expect(within(summary).getByText("total")).toBeInTheDocument();
+    expect(within(summary).getByText("to buy")).toBeInTheDocument();
+    expect(within(summary).getByText("checked")).toBeInTheDocument();
 
     const basilCheckbox = screen.getByRole("checkbox", { name: "Mark Basil as bought" });
 
@@ -49,7 +55,9 @@ describe("ShoppingListView", () => {
 
     expect(basilCheckbox).toBeChecked();
     expect(
-      screen.getByText("2 ingredients from 2 recipes · 1 to buy, 1 checked"),
+      screen.getByRole("status", {
+        name: "2 ingredients from 2 recipes · 1 to buy, 1 checked",
+      }),
     ).toBeInTheDocument();
     expect(screen.getByText("Basil")).toBeInTheDocument();
   });

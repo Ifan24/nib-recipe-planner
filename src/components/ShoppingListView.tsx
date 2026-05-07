@@ -94,6 +94,10 @@ export function ShoppingListView({ items, onClearList, onBackToSearch }: Shoppin
     checkedItemKeys.has(item.key),
   ).length;
   const remainingVisibleItemCount = filteredItems.length - checkedVisibleItemCount;
+  const visibleProgressPercent =
+    filteredItems.length > 0
+      ? Math.round((checkedVisibleItemCount / filteredItems.length) * 100)
+      : 0;
   const checklistSummary =
     items.length > 0
       ? `${listSummary} · ${remainingVisibleItemCount} to buy${
@@ -132,7 +136,37 @@ export function ShoppingListView({ items, onClearList, onBackToSearch }: Shoppin
         <div>
           <p className="eyebrow">Local shopping list</p>
           <h1>Ingredients to buy</h1>
-          {items.length > 0 ? <p className="shopping-summary">{checklistSummary}</p> : null}
+          {items.length > 0 ? (
+            <div
+              className="shopping-summary"
+              role="status"
+              aria-live="polite"
+              aria-label={checklistSummary}
+            >
+              <dl className="shopping-summary-metrics">
+                <div className="summary-metric">
+                  <dt>total</dt>
+                  <dd>{filteredItems.length}</dd>
+                  <span>
+                    {activeSource === ALL_SOURCES ? `${sourceMeals.length} recipes` : "filtered"}
+                  </span>
+                </div>
+                <div className="summary-metric">
+                  <dt>to buy</dt>
+                  <dd>{remainingVisibleItemCount}</dd>
+                  <span>left in list</span>
+                </div>
+                <div className="summary-metric summary-metric-done">
+                  <dt>checked</dt>
+                  <dd>{checkedVisibleItemCount}</dd>
+                  <span>{visibleProgressPercent}% done</span>
+                </div>
+              </dl>
+              <div className="shopping-progress" aria-hidden="true">
+                <span style={{ width: `${visibleProgressPercent}%` }} />
+              </div>
+            </div>
+          ) : null}
         </div>
         <div className="section-actions">
           <button type="button" onClick={onBackToSearch}>
