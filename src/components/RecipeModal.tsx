@@ -93,6 +93,7 @@ export function RecipeModal({ recipe, onClose, onAddToShoppingList }: RecipeModa
     addedRecipeId === currentRecipe.id
       ? `${currentRecipe.title} was added to your shopping list.`
       : "";
+  const hasAddedCurrentRecipe = Boolean(addStatus);
 
   function handleAddToShoppingList() {
     onAddToShoppingList(currentRecipe);
@@ -148,11 +149,16 @@ export function RecipeModal({ recipe, onClose, onAddToShoppingList }: RecipeModa
 
           <div className="modal-actions">
             <button
-              className="primary-button"
+              className={
+                hasAddedCurrentRecipe ? "primary-button primary-button-confirmed" : "primary-button"
+              }
               type="button"
               onClick={handleAddToShoppingList}
+              aria-label={
+                hasAddedCurrentRecipe ? "add this recipe to my shopping list again" : undefined
+              }
             >
-              add to my shopping list
+              {hasAddedCurrentRecipe ? "add again" : "add to my shopping list"}
             </button>
             {recipe.youtubeUrl ? (
               <a href={recipe.youtubeUrl} target="_blank" rel="noreferrer">
@@ -165,8 +171,17 @@ export function RecipeModal({ recipe, onClose, onAddToShoppingList }: RecipeModa
               </a>
             ) : null}
             {addStatus ? (
-              <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
-                {addStatus}
+              <p
+                className="modal-feedback"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+                aria-label={addStatus}
+              >
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M5 12.5l4.2 4.2L19 7" />
+                </svg>
+                added to list
               </p>
             ) : null}
           </div>
