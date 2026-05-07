@@ -2,6 +2,8 @@
 
 A small Next.js app for searching recipes with [TheMealDB](https://www.themealdb.com/) and building a local shopping list from selected meals.
 
+Live app: [https://nib-recipe-planner.vercel.app/](https://nib-recipe-planner.vercel.app/)
+
 ## Features
 
 - Search recipes by pressing Enter in the search box
