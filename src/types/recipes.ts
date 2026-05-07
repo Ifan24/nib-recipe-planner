@@ -15,6 +15,13 @@ export type Recipe = {
   ingredients: RecipeIngredient[];
 };
 
+export type ShoppingListRecipe = {
+  title: string;
+  instructions: string;
+  youtubeUrl?: string;
+  sourceUrl?: string;
+};
+
 export type ShoppingListItem = {
   key: string;
   name: string;
@@ -22,4 +29,5 @@ export type ShoppingListItem = {
   quantity?: number;
   unit?: string;
   sourceMeals: string[];
+  sourceRecipes?: ShoppingListRecipe[];
 };

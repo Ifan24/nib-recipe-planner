@@ -1,4 +1,9 @@
-import type { Recipe, RecipeIngredient, ShoppingListItem } from "@/types/recipes";
+import type {
+  Recipe,
+  RecipeIngredient,
+  ShoppingListItem,
+  ShoppingListRecipe,
+} from "@/types/recipes";
 
 export const SHOPPING_LIST_STORAGE_KEY = "recipe-planner-shopping-list-v1";
 
@@ -78,12 +83,34 @@ function formatQuantity(quantity: number): string {
   return Number.isInteger(quantity) ? String(quantity) : String(Number(quantity.toFixed(2)));
 }
 
-function createShoppingListItem(
-  ingredient: RecipeIngredient,
-  sourceMeal: string,
-): ShoppingListItem {
+function createShoppingListRecipe(recipe: Recipe): ShoppingListRecipe {
+  return {
+    title: recipe.title,
+    instructions: recipe.instructions,
+    youtubeUrl: recipe.youtubeUrl,
+    sourceUrl: recipe.sourceUrl,
+  };
+}
+
+function mergeSourceRecipes(
+  currentRecipes: ShoppingListRecipe[] = [],
+  nextRecipes: ShoppingListRecipe[] = [],
+): ShoppingListRecipe[] | undefined {
+  const byTitle = new Map<string, ShoppingListRecipe>();
+
+  for (const recipe of [...currentRecipes, ...nextRecipes]) {
+    byTitle.set(normalizeIngredientName(recipe.title), recipe);
+  }
+
+  const sourceRecipes = Array.from(byTitle.values());
+
+  return sourceRecipes.length > 0 ? sourceRecipes : undefined;
+}
+
+function createShoppingListItem(ingredient: RecipeIngredient, recipe: Recipe): ShoppingListItem {
   const key = normalizeIngredientName(ingredient.name);
   const parsedMeasure = parseMeasure(ingredient.measure);
+  const sourceRecipe = createShoppingListRecipe(recipe);
 
   return {
     key,
@@ -91,12 +118,15 @@ function createShoppingListItem(
     measures: ingredient.measure ? [ingredient.measure] : [],
     quantity: parsedMeasure?.quantity,
     unit: parsedMeasure?.unit,
-    sourceMeals: [sourceMeal],
+    sourceMeals: [recipe.title],
+    sourceRecipes: [sourceRecipe],
   };
 }
 
 function mergeMeasures(current: ShoppingListItem, next: ShoppingListItem): ShoppingListItem {
   const sourceMeals = Array.from(new Set([...current.sourceMeals, ...next.sourceMeals]));
+  const sourceRecipes = mergeSourceRecipes(current.sourceRecipes, next.sourceRecipes);
+  const recipeMetadata = sourceRecipes ? { sourceRecipes } : {};
 
   if (
     current.quantity !== undefined &&
@@ -111,6 +141,7 @@ function mergeMeasures(current: ShoppingListItem, next: ShoppingListItem): Shopp
       quantity,
       measures: [`${formatQuantity(quantity)} ${current.unit}`],
       sourceMeals,
+      ...recipeMetadata,
     };
   }
 
@@ -118,6 +149,7 @@ function mergeMeasures(current: ShoppingListItem, next: ShoppingListItem): Shopp
     ...current,
     measures: Array.from(new Set([...current.measures, ...next.measures])).filter(Boolean),
     sourceMeals,
+    ...recipeMetadata,
   };
 }
 
@@ -138,9 +170,7 @@ export function addRecipeToShoppingList(
   currentItems: ShoppingListItem[],
   recipe: Recipe,
 ): ShoppingListItem[] {
-  const newItems = recipe.ingredients.map((ingredient) =>
-    createShoppingListItem(ingredient, recipe.title),
-  );
+  const newItems = recipe.ingredients.map((ingredient) => createShoppingListItem(ingredient, recipe));
 
   return mergeShoppingListItems([...currentItems, ...newItems]);
 }
@@ -161,14 +191,45 @@ export function parseStoredShoppingList(value: string | null): ShoppingListItem[
       return [];
     }
 
-    return parsed.filter((item): item is ShoppingListItem => {
-      return (
-        typeof item?.key === "string" &&
-        typeof item?.name === "string" &&
-        Array.isArray(item?.measures) &&
-        Array.isArray(item?.sourceMeals)
-      );
-    });
+    return parsed
+      .filter((item): item is ShoppingListItem => {
+        return (
+          typeof item?.key === "string" &&
+          typeof item?.name === "string" &&
+          Array.isArray(item?.measures) &&
+          Array.isArray(item?.sourceMeals)
+        );
+      })
+      .map((item) => {
+        const sourceRecipes = Array.isArray(item.sourceRecipes)
+          ? item.sourceRecipes
+              .filter((recipe): recipe is ShoppingListRecipe => {
+                return (
+                  typeof recipe?.title === "string" && typeof recipe?.instructions === "string"
+                );
+              })
+              .map((recipe) => ({
+                title: recipe.title,
+                instructions: recipe.instructions,
+                youtubeUrl:
+                  typeof recipe.youtubeUrl === "string" ? recipe.youtubeUrl : undefined,
+                sourceUrl: typeof recipe.sourceUrl === "string" ? recipe.sourceUrl : undefined,
+              }))
+          : undefined;
+
+        if (sourceRecipes && sourceRecipes.length > 0) {
+          return { ...item, sourceRecipes };
+        }
+
+        return {
+          key: item.key,
+          name: item.name,
+          measures: item.measures,
+          quantity: item.quantity,
+          unit: item.unit,
+          sourceMeals: item.sourceMeals,
+        };
+      });
   } catch {
     return [];
   }

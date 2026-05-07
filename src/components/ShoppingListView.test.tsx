@@ -9,12 +9,14 @@ const shoppingListItems: ShoppingListItem[] = [
     name: "Basil",
     measures: ["Handful"],
     sourceMeals: ["Beef pho"],
+    sourceRecipes: [{ title: "Beef pho", instructions: "Simmer the broth." }],
   },
   {
     key: "onion",
     name: "Onion",
     measures: ["1 large"],
     sourceMeals: ["Soup"],
+    sourceRecipes: [{ title: "Soup", instructions: "Cook until tender." }],
   },
 ];
 
@@ -38,6 +40,7 @@ describe("ShoppingListView", () => {
         items={shoppingListItems}
         onBackToSearch={vi.fn()}
         onClearList={vi.fn()}
+        onFindRecipeInstructions={vi.fn(async () => null)}
       />,
     );
 
@@ -51,6 +54,9 @@ describe("ShoppingListView", () => {
 
     const basilCheckbox = screen.getByRole("checkbox", { name: "Mark Basil as bought" });
 
+    expect(screen.getByText("recipe instructions")).toBeInTheDocument();
+    expect(screen.getAllByText("view instructions")).toHaveLength(2);
+
     fireEvent.click(basilCheckbox);
 
     expect(basilCheckbox).toBeChecked();
@@ -60,5 +66,7 @@ describe("ShoppingListView", () => {
       }),
     ).toBeInTheDocument();
     expect(screen.getByText("Basil")).toBeInTheDocument();
+    expect(screen.getByText("ready to cook")).toBeInTheDocument();
+    expect(screen.getByText("Simmer the broth.")).toBeInTheDocument();
   });
 });

@@ -841,6 +841,110 @@ h1 {
   background: rgba(255, 255, 255, 0.2);
 }
 
+.recipe-instructions-panel {
+  display: grid;
+  gap: 12px;
+  border: 1px solid rgba(194, 214, 181, 0.78);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 16px;
+}
+
+.recipe-instruction-cards {
+  display: grid;
+  gap: 10px;
+}
+
+.recipe-instruction-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 10px 30px rgba(20, 74, 56, 0.06);
+}
+
+.recipe-instruction-card-ready {
+  border-color: rgba(20, 74, 56, 0.52);
+  background:
+    linear-gradient(90deg, rgba(130, 229, 120, 0.18), rgba(255, 255, 255, 0.92) 42%),
+    var(--surface);
+  box-shadow: 0 18px 52px rgba(20, 74, 56, 0.14);
+}
+
+.recipe-instruction-card summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  cursor: pointer;
+  list-style: none;
+  padding: 16px;
+}
+
+.recipe-instruction-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.recipe-instruction-card summary strong,
+.recipe-instruction-card summary small {
+  display: block;
+}
+
+.recipe-instruction-card summary small {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.instruction-status {
+  display: inline-flex;
+  min-height: 30px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--surface-strong);
+  color: var(--accent-dark);
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.recipe-instruction-card-ready .instruction-status {
+  background: var(--accent);
+  color: var(--surface);
+}
+
+.recipe-instruction-text {
+  max-height: 320px;
+  overflow-y: auto;
+  margin: 0 16px 16px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+
+.recipe-instruction-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: -4px 16px 16px;
+}
+
+.recipe-instruction-links:empty {
+  display: none;
+}
+
+.recipe-instruction-links a {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
 .shopping-list {
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -1194,6 +1298,14 @@ h1 {
 
   .source-filters {
     display: grid;
+  }
+
+  .recipe-instruction-card summary {
+    grid-template-columns: 1fr;
+  }
+
+  .instruction-status {
+    justify-self: start;
   }
 
   .ingredient-list li,

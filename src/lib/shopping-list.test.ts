@@ -58,14 +58,24 @@ describe("shopping-list helpers", () => {
       thumbnail: "",
       category: "Dessert",
       area: "British",
-      instructions: "",
+      instructions: "Chill before serving.",
       ingredients: [
         { name: "Sugar", measure: "1 cup" },
         { name: "Sugar", measure: "to taste" },
       ],
     } satisfies Recipe;
 
-    expect(addRecipeToShoppingList([], recipe)[0].measures).toEqual(["1 cup", "to taste"]);
+    const [shoppingListItem] = addRecipeToShoppingList([], recipe);
+
+    expect(shoppingListItem.measures).toEqual(["1 cup", "to taste"]);
+    expect(shoppingListItem.sourceRecipes).toEqual([
+      {
+        title: "Pudding",
+        instructions: "Chill before serving.",
+        youtubeUrl: undefined,
+        sourceUrl: undefined,
+      },
+    ]);
   });
 
   it("falls back to an empty list for invalid stored data", () => {

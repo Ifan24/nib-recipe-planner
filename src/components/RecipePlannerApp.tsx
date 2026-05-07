@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { getRandomRecipe, searchRecipes } from "@/lib/mealdb";
 import { addRecipeToShoppingList } from "@/lib/shopping-list";
 import { clearShoppingList, readShoppingList, writeShoppingList } from "@/lib/storage";
-import type { Recipe, ShoppingListItem } from "@/types/recipes";
+import type { Recipe, ShoppingListItem, ShoppingListRecipe } from "@/types/recipes";
 import { AppHeader } from "./AppHeader";
 import { RecipeGrid } from "./RecipeGrid";
 import { RecipeModal } from "./RecipeModal";
@@ -117,6 +117,26 @@ export function RecipePlannerApp() {
     setShoppingList([]);
   }, []);
 
+  const handleFindRecipeInstructions = useCallback(
+    async (sourceMeal: string): Promise<ShoppingListRecipe | null> => {
+      const results = await searchRecipes(sourceMeal);
+      const recipe =
+        results.find(
+          (candidate) => candidate.title.trim().toLowerCase() === sourceMeal.trim().toLowerCase(),
+        ) ?? results[0];
+
+      return recipe
+        ? {
+            title: sourceMeal,
+            instructions: recipe.instructions,
+            youtubeUrl: recipe.youtubeUrl,
+            sourceUrl: recipe.sourceUrl,
+          }
+        : null;
+    },
+    [],
+  );
+
   const visibleRecipes = recipes.slice(0, visibleRecipeCount);
   const remainingRecipeCount = Math.max(recipes.length - visibleRecipes.length, 0);
 
@@ -212,6 +232,7 @@ export function RecipePlannerApp() {
             items={shoppingList}
             onClearList={handleClearShoppingList}
             onBackToSearch={handleShowSearch}
+            onFindRecipeInstructions={handleFindRecipeInstructions}
           />
         )}
       </main>

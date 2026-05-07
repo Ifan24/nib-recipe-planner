@@ -2,16 +2,27 @@
 
 import { ArrowLeft, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { ShoppingListItem } from "@/types/recipes";
+import type { ShoppingListItem, ShoppingListRecipe } from "@/types/recipes";
 
 type ShoppingListViewProps = {
   items: ShoppingListItem[];
   onClearList: () => void;
   onBackToSearch: () => void;
+  onFindRecipeInstructions: (sourceMeal: string) => Promise<ShoppingListRecipe | null>;
 };
 
 const ALL_SOURCES = "all";
 const CHECKED_ITEMS_STORAGE_KEY = "recipe-planner-checked-shopping-items-v1";
+
+type RecipeInstructionCard = ShoppingListRecipe & {
+  checkedCount: number;
+  totalCount: number;
+  isComplete: boolean;
+};
+
+function normalizeSourceTitle(title: string): string {
+  return title.trim().toLowerCase();
+}
 
 function readCheckedItemKeys(): Set<string> {
   if (typeof window === "undefined") {
@@ -54,9 +65,17 @@ function clearCheckedItemKeys(): void {
   }
 }
 
-export function ShoppingListView({ items, onClearList, onBackToSearch }: ShoppingListViewProps) {
+export function ShoppingListView({
+  items,
+  onClearList,
+  onBackToSearch,
+  onFindRecipeInstructions,
+}: ShoppingListViewProps) {
   const [selectedSource, setSelectedSource] = useState(ALL_SOURCES);
   const [checkedItemKeys, setCheckedItemKeys] = useState<Set<string>>(() => new Set());
+  const [fetchedRecipesByTitle, setFetchedRecipesByTitle] = useState<
+    Record<string, ShoppingListRecipe>
+  >({});
 
   useEffect(() => {
     const frameId = window.requestAnimationFrame(() => {
@@ -71,6 +90,63 @@ export function ShoppingListView({ items, onClearList, onBackToSearch }: Shoppin
       left.localeCompare(right),
     );
   }, [items]);
+
+  const storedRecipeTitles = useMemo(() => {
+    return new Set(
+      items.flatMap((item) =>
+        (item.sourceRecipes ?? []).map((recipe) => normalizeSourceTitle(recipe.title)),
+      ),
+    );
+  }, [items]);
+
+  useEffect(() => {
+    const missingSourceMeals = sourceMeals.filter((sourceMeal) => {
+      const sourceKey = normalizeSourceTitle(sourceMeal);
+
+      return !storedRecipeTitles.has(sourceKey) && !fetchedRecipesByTitle[sourceKey];
+    });
+
+    if (missingSourceMeals.length === 0) {
+      return undefined;
+    }
+
+    let isCancelled = false;
+    async function fetchMissingInstructions() {
+      const fetchedRecipes = await Promise.all(
+        missingSourceMeals.map(async (sourceMeal) => {
+          try {
+            const recipe = await onFindRecipeInstructions(sourceMeal);
+
+            return recipe
+              ? { ...recipe, title: sourceMeal }
+              : { title: sourceMeal, instructions: "" };
+          } catch {
+            return { title: sourceMeal, instructions: "" };
+          }
+        }),
+      );
+
+      if (isCancelled) {
+        return;
+      }
+
+      setFetchedRecipesByTitle((currentRecipes) => {
+        const nextRecipes = { ...currentRecipes };
+
+        for (const recipe of fetchedRecipes) {
+          nextRecipes[normalizeSourceTitle(recipe.title)] = recipe;
+        }
+
+        return nextRecipes;
+      });
+    }
+
+    void fetchMissingInstructions();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [fetchedRecipesByTitle, onFindRecipeInstructions, sourceMeals, storedRecipeTitles]);
 
   const activeSource =
     selectedSource === ALL_SOURCES || sourceMeals.includes(selectedSource)
@@ -105,6 +181,40 @@ export function ShoppingListView({ items, onClearList, onBackToSearch }: Shoppin
           checkedVisibleItemCount > 0 ? `, ${checkedVisibleItemCount} checked` : ""
         }`
       : "";
+  const recipeInstructionCards = useMemo<RecipeInstructionCard[]>(() => {
+    const recipesByTitle = new Map<string, ShoppingListRecipe>();
+
+    for (const item of items) {
+      for (const recipe of item.sourceRecipes ?? []) {
+        recipesByTitle.set(normalizeSourceTitle(recipe.title), recipe);
+      }
+    }
+
+    for (const recipe of Object.values(fetchedRecipesByTitle)) {
+      recipesByTitle.set(normalizeSourceTitle(recipe.title), recipe);
+    }
+
+    const visibleSourceMeals = activeSource === ALL_SOURCES ? sourceMeals : [activeSource];
+
+    return visibleSourceMeals
+      .map((sourceMeal) => {
+        const sourceKey = normalizeSourceTitle(sourceMeal);
+        const sourceItems = items.filter((item) => item.sourceMeals.includes(sourceMeal));
+        const checkedCount = sourceItems.filter((item) => checkedItemKeys.has(item.key)).length;
+        const recipe = recipesByTitle.get(sourceKey);
+
+        return {
+          title: sourceMeal,
+          instructions: recipe?.instructions ?? "",
+          youtubeUrl: recipe?.youtubeUrl,
+          sourceUrl: recipe?.sourceUrl,
+          checkedCount,
+          totalCount: sourceItems.length,
+          isComplete: sourceItems.length > 0 && checkedCount === sourceItems.length,
+        };
+      })
+      .filter((recipe) => recipe.totalCount > 0);
+  }, [activeSource, checkedItemKeys, fetchedRecipesByTitle, items, sourceMeals]);
 
   const handleToggleItem = useCallback((itemKey: string) => {
     setCheckedItemKeys((currentKeys) => {
@@ -221,6 +331,62 @@ export function ShoppingListView({ items, onClearList, onBackToSearch }: Shoppin
                 ))}
               </div>
             </div>
+          ) : null}
+
+          {recipeInstructionCards.length > 0 ? (
+            <section className="recipe-instructions-panel" aria-labelledby="recipe-instructions">
+              <div>
+                <span className="shopping-filter-label" id="recipe-instructions">
+                  recipe instructions
+                </span>
+              </div>
+              <div className="recipe-instruction-cards">
+                {recipeInstructionCards.map((recipe) => (
+                  <details
+                    className={
+                      recipe.isComplete
+                        ? "recipe-instruction-card recipe-instruction-card-ready"
+                        : "recipe-instruction-card"
+                    }
+                    key={recipe.title}
+                    open={recipe.isComplete && activeSource !== ALL_SOURCES}
+                  >
+                    <summary>
+                      <span>
+                        <strong>{recipe.title}</strong>
+                        <small>
+                          {recipe.checkedCount}/{recipe.totalCount} ingredients collected
+                        </small>
+                      </span>
+                      <span className="instruction-status">
+                        {recipe.isComplete ? "ready to cook" : "view instructions"}
+                      </span>
+                    </summary>
+                    {recipe.instructions ? (
+                      <p className="instructions recipe-instruction-text">
+                        {recipe.instructions}
+                      </p>
+                    ) : (
+                      <p className="instructions recipe-instruction-text">
+                        Open this recipe from search again to save its instructions here.
+                      </p>
+                    )}
+                    <div className="recipe-instruction-links">
+                      {recipe.youtubeUrl ? (
+                        <a href={recipe.youtubeUrl} target="_blank" rel="noreferrer">
+                          YouTube
+                        </a>
+                      ) : null}
+                      {recipe.sourceUrl ? (
+                        <a href={recipe.sourceUrl} target="_blank" rel="noreferrer">
+                          Source
+                        </a>
+                      ) : null}
+                    </div>
+                  </details>
+                ))}
+              </div>
+            </section>
           ) : null}
 
           <ul className="shopping-list">
