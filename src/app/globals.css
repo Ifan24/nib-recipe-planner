@@ -497,7 +497,8 @@ h1 {
   display: grid;
   grid-template-columns: minmax(280px, 420px) minmax(0, 1fr);
   width: min(1040px, 100%);
-  max-height: min(780px, 92vh);
+  height: min(780px, calc(100dvh - 40px));
+  max-height: calc(100dvh - 40px);
   overflow: hidden;
   gap: 0;
   border: 1px solid rgba(255, 255, 255, 0.68);
@@ -514,7 +515,7 @@ h1 {
   position: relative;
   align-self: start;
   aspect-ratio: 4 / 5;
-  min-height: auto;
+  min-height: 0;
   margin: 14px 0 14px 14px;
   overflow: hidden;
   border-radius: 8px;
@@ -522,9 +523,11 @@ h1 {
 }
 
 .modal-content {
+  min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: clamp(24px, 4vw, 42px);
+  scrollbar-gutter: stable;
 }
 
 .modal-header {
@@ -769,7 +772,9 @@ h1 {
   }
 
   .recipe-modal {
+    height: auto;
     max-height: 94vh;
+    max-height: 94dvh;
     width: min(100%, 680px);
     overflow-y: auto;
   }
