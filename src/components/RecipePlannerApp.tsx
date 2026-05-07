@@ -13,10 +13,14 @@ import { ShoppingListView } from "./ShoppingListView";
 
 type View = "search" | "shopping-list";
 
+const INITIAL_RECIPE_COUNT = 12;
+const RECIPE_LOAD_INCREMENT = 8;
+
 export function RecipePlannerApp() {
   const [view, setView] = useState<View>("search");
   const [query, setQuery] = useState("");
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [visibleRecipeCount, setVisibleRecipeCount] = useState(INITIAL_RECIPE_COUNT);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [shoppingList, setShoppingList] = useState<ShoppingListItem[]>([]);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
@@ -36,6 +40,7 @@ export function RecipePlannerApp() {
 
     if (!trimmedQuery) {
       setRecipes([]);
+      setVisibleRecipeCount(INITIAL_RECIPE_COUNT);
       setStatus("idle");
       setMessage("Enter a recipe search term to begin.");
       return;
@@ -47,6 +52,7 @@ export function RecipePlannerApp() {
     try {
       const results = await searchRecipes(trimmedQuery);
       setRecipes(results);
+      setVisibleRecipeCount(INITIAL_RECIPE_COUNT);
       setMessage(results.length === 0 ? `No recipes found for ${trimmedQuery}.` : "");
     } catch (error) {
       setRecipes([]);
@@ -86,6 +92,12 @@ export function RecipePlannerApp() {
     setSelectedRecipe(recipe);
   }, []);
 
+  const handleLoadMoreRecipes = useCallback(() => {
+    setVisibleRecipeCount((currentCount) =>
+      Math.min(currentCount + RECIPE_LOAD_INCREMENT, recipes.length),
+    );
+  }, [recipes.length]);
+
   const handleCloseRecipe = useCallback(() => {
     setSelectedRecipe(null);
   }, []);
@@ -104,6 +116,9 @@ export function RecipePlannerApp() {
     clearShoppingList();
     setShoppingList([]);
   }, []);
+
+  const visibleRecipes = recipes.slice(0, visibleRecipeCount);
+  const remainingRecipeCount = Math.max(recipes.length - visibleRecipes.length, 0);
 
   return (
     <div className="app-shell">
@@ -165,7 +180,29 @@ export function RecipePlannerApp() {
             ) : null}
 
             {recipes.length > 0 && status !== "loading" ? (
-              <RecipeGrid recipes={recipes} onSelectRecipe={handleSelectRecipe} />
+              <>
+                <div className="results-toolbar" role="status" aria-live="polite">
+                  <p>
+                    Showing {visibleRecipes.length} of {recipes.length} recipes
+                    {query.trim() ? ` for ${query.trim()}` : ""}.
+                  </p>
+                </div>
+
+                <RecipeGrid recipes={visibleRecipes} onSelectRecipe={handleSelectRecipe} />
+
+                {remainingRecipeCount > 0 ? (
+                  <div className="load-more-panel">
+                    <button
+                      className="primary-button"
+                      type="button"
+                      onClick={handleLoadMoreRecipes}
+                    >
+                      show more recipes
+                      <span>{remainingRecipeCount} left</span>
+                    </button>
+                  </div>
+                ) : null}
+              </>
             ) : null}
           </section>
         ) : (

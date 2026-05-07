@@ -390,6 +390,15 @@ h1 {
   color: var(--danger);
 }
 
+.results-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--muted);
+  font-size: 15px;
+}
+
 .recipe-grid {
   display: grid;
   grid-auto-flow: dense;
@@ -402,13 +411,11 @@ h1 {
   min-width: 0;
 }
 
-.recipe-card:nth-child(1),
-.recipe-card:nth-child(6n) {
+.recipe-card:first-child {
   grid-column: span 6;
 }
 
-.recipe-card:nth-child(1) .recipe-card-image,
-.recipe-card:nth-child(6n) .recipe-card-image {
+.recipe-card:first-child .recipe-card-image {
   aspect-ratio: 16 / 9;
 }
 
@@ -466,9 +473,30 @@ h1 {
   line-height: 1.08;
 }
 
-.recipe-card:nth-child(1) .recipe-title,
-.recipe-card:nth-child(6n) .recipe-title {
+.recipe-card:first-child .recipe-title {
   font-size: 34px;
+}
+
+.load-more-panel {
+  display: flex;
+  justify-content: center;
+  padding: 6px 0 0;
+}
+
+.load-more-panel .primary-button {
+  min-height: 50px;
+  padding: 0 20px;
+}
+
+.load-more-panel .primary-button span {
+  display: inline-grid;
+  min-width: 26px;
+  min-height: 26px;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0 8px;
+  font-size: 12px;
 }
 
 .recipe-meta {
@@ -808,19 +836,16 @@ h1 {
   }
 
   .recipe-card,
-  .recipe-card:nth-child(1),
-  .recipe-card:nth-child(6n) {
+  .recipe-card:first-child {
     grid-column: span 6;
   }
 
   .recipe-card .recipe-card-image,
-  .recipe-card:nth-child(1) .recipe-card-image,
-  .recipe-card:nth-child(6n) .recipe-card-image {
+  .recipe-card:first-child .recipe-card-image {
     aspect-ratio: 4 / 3;
   }
 
-  .recipe-card:nth-child(1) .recipe-title,
-  .recipe-card:nth-child(6n) .recipe-title {
+  .recipe-card:first-child .recipe-title {
     font-size: 28px;
   }
 }
@@ -860,8 +885,7 @@ h1 {
   }
 
   .recipe-card,
-  .recipe-card:nth-child(1),
-  .recipe-card:nth-child(6n) {
+  .recipe-card:first-child {
     grid-column: span 12;
   }
 
@@ -928,8 +952,7 @@ h1 {
     font-size: 23px;
   }
 
-  .recipe-card:nth-child(1) .recipe-title,
-  .recipe-card:nth-child(6n) .recipe-title,
+  .recipe-card:first-child .recipe-title,
   .modal-header h2,
   .shopping-panel h1 {
     font-size: 36px;

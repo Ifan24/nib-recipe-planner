@@ -8,6 +8,7 @@ Live app: [https://nib-recipe-planner.vercel.app/](https://nib-recipe-planner.ve
 
 - Search recipes by pressing Enter in the search box
 - Display recipe results in a responsive grid
+- Browse longer result sets with a load-more control
 - View recipe details in a modal panel
 - Add recipe ingredients to a shopping list stored in `localStorage`
 - View the shopping list from anywhere in the app
