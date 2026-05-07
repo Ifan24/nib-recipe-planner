@@ -154,11 +154,18 @@ export function RecipeModal({ recipe, onClose, onAddToShoppingList }: RecipeModa
               }
               type="button"
               onClick={handleAddToShoppingList}
-              aria-label={
-                hasAddedCurrentRecipe ? "add this recipe to my shopping list again" : undefined
-              }
+              disabled={hasAddedCurrentRecipe}
             >
-              {hasAddedCurrentRecipe ? "add again" : "add to my shopping list"}
+              {hasAddedCurrentRecipe ? (
+                <>
+                  <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="M5 12.5l4.2 4.2L19 7" />
+                  </svg>
+                  added to list
+                </>
+              ) : (
+                "add to my shopping list"
+              )}
             </button>
             {recipe.youtubeUrl ? (
               <a href={recipe.youtubeUrl} target="_blank" rel="noreferrer">
@@ -171,17 +178,8 @@ export function RecipeModal({ recipe, onClose, onAddToShoppingList }: RecipeModa
               </a>
             ) : null}
             {addStatus ? (
-              <p
-                className="modal-feedback"
-                role="status"
-                aria-live="polite"
-                aria-atomic="true"
-                aria-label={addStatus}
-              >
-                <svg aria-hidden="true" viewBox="0 0 24 24">
-                  <path d="M5 12.5l4.2 4.2L19 7" />
-                </svg>
-                added to list
+              <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+                {addStatus}
               </p>
             ) : null}
           </div>

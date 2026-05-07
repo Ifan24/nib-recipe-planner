@@ -199,7 +199,7 @@ button:disabled {
 .nav-button:hover,
 .section-actions button:hover,
 .search-row button:hover,
-.primary-button:hover {
+.primary-button:not(:disabled):hover {
   border-color: var(--accent);
   transform: translateY(-1px);
 }
@@ -213,8 +213,25 @@ button:disabled {
 }
 
 .primary-button-confirmed {
-  border-color: var(--accent-dark);
-  background: var(--accent-dark);
+  border-color: rgba(194, 214, 181, 0.88);
+  background: var(--surface-strong);
+  color: var(--accent-dark);
+}
+
+.primary-button-confirmed:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.primary-button svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
 }
 
 .nav-count {
@@ -572,32 +589,6 @@ h1 {
   text-decoration: underline;
   text-decoration-thickness: 2px;
   text-underline-offset: 3px;
-}
-
-.modal-feedback {
-  display: inline-flex;
-  min-height: 42px;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  border-radius: 999px;
-  background: var(--surface-strong);
-  color: var(--accent-dark);
-  padding: 0 12px;
-  font-size: 13px;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.modal-feedback svg {
-  display: block;
-  width: 16px;
-  height: 16px;
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 3;
 }
 
 .modal-section {
