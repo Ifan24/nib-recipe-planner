@@ -759,9 +759,82 @@ h1 {
   border-bottom: 0;
 }
 
-.shopping-list li div {
+.shopping-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+}
+
+.shopping-check {
+  position: relative;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 12px;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.shopping-check input {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.shopping-checkmark {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: transparent;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    color 160ms ease;
+}
+
+.shopping-checkmark svg {
+  display: block;
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.shopping-check input:checked + .shopping-checkmark {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--surface);
+}
+
+.shopping-check input:focus-visible + .shopping-checkmark {
+  outline: 3px solid var(--accent-bright);
+  outline-offset: 3px;
+}
+
+.shopping-item-text {
   display: grid;
   gap: 8px;
+  min-width: 0;
+}
+
+.shopping-list li.checked strong,
+.shopping-list li.checked p {
+  color: var(--muted);
+}
+
+.shopping-list li.checked strong {
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  text-decoration-color: rgba(20, 74, 56, 0.5);
 }
 
 .source-chips {
@@ -859,17 +932,27 @@ h1 {
   }
 
   .app-header {
-    position: static;
+    position: sticky;
+    display: grid;
+    grid-template-columns: 1fr;
     align-items: stretch;
-    gap: 16px;
+    gap: 12px;
+    padding: 14px 16px;
   }
 
   .header-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: stretch;
+    gap: 8px;
   }
 
   .header-actions button {
-    flex: 1 1 140px;
+    width: 100%;
+  }
+
+  .header-actions .nav-button:last-child {
+    grid-column: 1 / -1;
   }
 
   .search-row {
@@ -978,6 +1061,21 @@ h1 {
   .ingredient-list li,
   .shopping-list li {
     display: grid;
+  }
+
+  .shopping-list li {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .shopping-check {
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .shopping-checkmark {
+    width: 24px;
+    height: 24px;
   }
 
   .ingredient-list li span:last-child,

@@ -12,6 +12,7 @@ Live app: [https://nib-recipe-planner.vercel.app/](https://nib-recipe-planner.ve
 - View recipe details in a modal panel
 - Add recipe ingredients to a shopping list stored in `localStorage`
 - View the shopping list from anywhere in the app
+- Tick off shopping-list items while keeping the list available between visits
 - Merge matching ingredients when quantities and units can be safely combined
 - Preserve ambiguous measures instead of showing misleading totals
 - Fetch a random recipe with `surprise me`
@@ -45,7 +46,7 @@ pnpm build
 - The app uses Next.js App Router, React, and TypeScript.
 - TheMealDB responses are mapped into a smaller app-level `Recipe` type before rendering.
 - Ingredient extraction iterates through `strIngredient1..20` and `strMeasure1..20`.
-- Shopping-list data is versioned under a single `localStorage` key.
+- Shopping-list data and checked-item state are versioned under separate `localStorage` keys.
 - Measures are only added together when they have compatible parsed units. For free-text or incompatible measures, the app keeps the original measure text.
 
 ## Tradeoffs
