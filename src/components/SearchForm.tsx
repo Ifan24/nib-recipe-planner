@@ -1,4 +1,5 @@
 import type { FormEvent } from "react";
+import { Search } from "lucide-react";
 
 type SearchFormProps = {
   query: string;
@@ -27,6 +28,7 @@ export function SearchForm({ query, isSearching, onQueryChange, onSearch }: Sear
           autoComplete="off"
         />
         <button type="submit" disabled={isSearching}>
+          <Search aria-hidden="true" />
           {isSearching ? "searching" : "search"}
         </button>
       </div>

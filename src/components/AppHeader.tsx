@@ -1,3 +1,5 @@
+import { Search, ShoppingBasket, Shuffle } from "lucide-react";
+
 type AppHeaderProps = {
   currentView: "search" | "shopping-list";
   isLoadingSurprise: boolean;
@@ -31,6 +33,7 @@ export function AppHeader({
           onClick={onShowSearch}
           aria-current={currentView === "search" ? "page" : undefined}
         >
+          <Search aria-hidden="true" />
           search
         </button>
         <button
@@ -40,6 +43,7 @@ export function AppHeader({
           disabled={isLoadingSurprise}
           aria-busy={isLoadingSurprise || undefined}
         >
+          <Shuffle aria-hidden="true" />
           {isLoadingSurprise ? "finding..." : "surprise me"}
         </button>
         <button
@@ -53,6 +57,7 @@ export function AppHeader({
               : "view my shopping list"
           }
         >
+          <ShoppingBasket aria-hidden="true" />
           view my shopping list
           {shoppingListCount > 0 ? (
             <span className="nav-count" aria-hidden="true">

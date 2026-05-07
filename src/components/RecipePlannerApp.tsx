@@ -139,22 +139,21 @@ export function RecipePlannerApp() {
           <section className="search-panel">
             <div className="search-stage">
               <div className="hero">
-                <div>
+                <div className="hero-copy">
                   <p className="eyebrow">MealDB recipe search</p>
-                  <h1>Find dinner, save the ingredients, shop with less noise.</h1>
+                  <h1>Search recipes, build the list.</h1>
+                  <SearchForm
+                    query={query}
+                    isSearching={status === "loading"}
+                    onQueryChange={setQuery}
+                    onSearch={handleSearch}
+                  />
                 </div>
-                <p>
-                  Search recipes by keyword, inspect the full method, and build a local shopping
-                  list from the meals you want to cook.
+                <p className="hero-note">
+                  Type a keyword, open a recipe for the full method, then add its ingredients to a
+                  local shopping list you can filter and tick off.
                 </p>
               </div>
-
-              <SearchForm
-                query={query}
-                isSearching={status === "loading"}
-                onQueryChange={setQuery}
-                onSearch={handleSearch}
-              />
 
               {message ? (
                 <div

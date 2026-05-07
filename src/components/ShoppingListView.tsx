@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowLeft, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ShoppingListItem } from "@/types/recipes";
 
@@ -170,9 +171,11 @@ export function ShoppingListView({ items, onClearList, onBackToSearch }: Shoppin
         </div>
         <div className="section-actions">
           <button type="button" onClick={onBackToSearch}>
+            <ArrowLeft aria-hidden="true" />
             back to search
           </button>
           <button type="button" onClick={handleClearList} disabled={items.length === 0}>
+            <Trash2 aria-hidden="true" />
             clear list
           </button>
         </div>
