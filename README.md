@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Recipe Planner
+
+A small Next.js app for searching recipes with [TheMealDB](https://www.themealdb.com/) and building a local shopping list from selected meals.
+
+## Features
+
+- Search recipes by pressing Enter in the search box
+- Display recipe results in a responsive grid
+- View recipe details in a modal panel
+- Add recipe ingredients to a shopping list stored in `localStorage`
+- View the shopping list from anywhere in the app
+- Merge matching ingredients when quantities and units can be safely combined
+- Preserve ambiguous measures instead of showing misleading totals
+- Fetch a random recipe with `surprise me`
 
 ## Getting Started
 
-First, run the development server:
+Install dependencies:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Run the development server:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:3000](http://localhost:3000).
 
-## Learn More
+## Scripts
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+pnpm lint
+pnpm test
+pnpm build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Technical Notes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- The app uses Next.js App Router, React, and TypeScript.
+- TheMealDB responses are mapped into a smaller app-level `Recipe` type before rendering.
+- Ingredient extraction iterates through `strIngredient1..20` and `strMeasure1..20`.
+- Shopping-list data is versioned under a single `localStorage` key.
+- Measures are only added together when they have compatible parsed units. For free-text or incompatible measures, the app keeps the original measure text.
+
+## Tradeoffs
+
+TheMealDB measure fields are semi-structured, so full unit conversion is intentionally out of scope. The app combines safe cases such as `1 cup + 2 cups`, but keeps values like `to taste` or incompatible units as separate notes.
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project uses the default Next.js setup and can be deployed directly to Vercel. No API key is required for the public TheMealDB endpoints.
