@@ -321,8 +321,9 @@ h1,
 h2,
 h3,
 p {
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   text-wrap: pretty;
+  word-break: normal;
 }
 
 h1 {
@@ -336,6 +337,12 @@ h1 {
   max-width: 660px;
   font-size: 62px;
   line-height: 0.96;
+  overflow-wrap: normal;
+  text-wrap: balance;
+}
+
+.hero h1 span {
+  display: block;
 }
 
 .hero-copy {

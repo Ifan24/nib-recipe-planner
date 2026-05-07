@@ -141,7 +141,10 @@ export function RecipePlannerApp() {
               <div className="hero">
                 <div className="hero-copy">
                   <p className="eyebrow">MealDB recipe search</p>
-                  <h1>Search recipes, build the list.</h1>
+                  <h1>
+                    <span>Find recipes</span>
+                    <span>Build your list</span>
+                  </h1>
                   <SearchForm
                     query={query}
                     isSearching={status === "loading"}
