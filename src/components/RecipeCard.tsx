@@ -1,0 +1,32 @@
+import Image from "next/image";
+import type { Recipe } from "@/types/recipes";
+
+type RecipeCardProps = {
+  recipe: Recipe;
+  onSelectRecipe: (recipe: Recipe) => void;
+};
+
+export function RecipeCard({ recipe, onSelectRecipe }: RecipeCardProps) {
+  return (
+    <article className="recipe-card">
+      <button type="button" onClick={() => onSelectRecipe(recipe)}>
+        <span className="recipe-card-image">
+          <Image
+            src={recipe.thumbnail}
+            alt={recipe.title}
+            fill
+            sizes="(max-width: 800px) 100vw, 25vw"
+            unoptimized
+          />
+        </span>
+        <span className="recipe-card-body">
+          <span className="recipe-title">{recipe.title}</span>
+          <span className="recipe-meta">
+            <span>{recipe.category}</span>
+            <span>{recipe.area}</span>
+          </span>
+        </span>
+      </button>
+    </article>
+  );
+}
