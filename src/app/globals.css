@@ -294,6 +294,15 @@ main {
   align-items: end;
 }
 
+.section-heading {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.section-heading .section-actions {
+  align-self: end;
+  justify-content: flex-end;
+}
+
 .eyebrow {
   margin-bottom: 10px;
   color: var(--accent-dark);
@@ -636,6 +645,81 @@ h1 {
   font-size: 64px;
 }
 
+.shopping-summary {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 18px;
+}
+
+.shopping-tools {
+  display: grid;
+  gap: 12px;
+  border: 1px solid rgba(194, 214, 181, 0.78);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 16px;
+}
+
+.shopping-filter-label {
+  color: var(--accent-dark);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.source-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filter-chip {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--foreground);
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.filter-chip:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.filter-chip.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--surface);
+}
+
+.filter-chip span {
+  display: inline-grid;
+  min-width: 22px;
+  min-height: 22px;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(20, 74, 56, 0.08);
+  padding: 0 7px;
+  font-size: 12px;
+}
+
+.filter-chip.active span {
+  background: rgba(255, 255, 255, 0.2);
+}
+
 .shopping-list {
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -649,12 +733,26 @@ h1 {
 
 .shopping-list li div {
   display: grid;
-  gap: 4px;
+  gap: 8px;
 }
 
-.shopping-list li span {
-  color: var(--muted);
-  font-size: 13px;
+.source-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.source-chip {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  border-radius: 999px;
+  background: var(--surface-strong);
+  color: var(--accent-dark);
+  padding: 0 9px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .loading-grid {
@@ -844,6 +942,14 @@ h1 {
   .modal-actions,
   .section-actions {
     align-items: stretch;
+  }
+
+  .section-heading .section-actions {
+    justify-content: stretch;
+  }
+
+  .source-filters {
+    display: grid;
   }
 
   .ingredient-list li,
