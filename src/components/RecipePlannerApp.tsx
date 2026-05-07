@@ -102,27 +102,29 @@ export function RecipePlannerApp() {
       <main>
         {view === "search" ? (
           <section className="search-panel">
-            <div className="hero">
-              <div>
-                <p className="eyebrow">MealDB recipe search</p>
-                <h1>Find dinner, save the ingredients, shop with less noise.</h1>
+            <div className="search-stage">
+              <div className="hero">
+                <div>
+                  <p className="eyebrow">MealDB recipe search</p>
+                  <h1>Find dinner, save the ingredients, shop with less noise.</h1>
+                </div>
+                <p>
+                  Search recipes by keyword, inspect the full method, and build a local shopping
+                  list from the meals you want to cook.
+                </p>
               </div>
-              <p>
-                Search recipes by keyword, inspect the full method, and build a local shopping list
-                from the meals you want to cook.
-              </p>
+
+              <SearchForm
+                query={query}
+                isSearching={status === "loading"}
+                onQueryChange={setQuery}
+                onSearch={handleSearch}
+              />
+
+              {message ? (
+                <div className={status === "error" ? "notice error" : "notice"}>{message}</div>
+              ) : null}
             </div>
-
-            <SearchForm
-              query={query}
-              isSearching={status === "loading"}
-              onQueryChange={setQuery}
-              onSearch={handleSearch}
-            />
-
-            {message ? (
-              <div className={status === "error" ? "notice error" : "notice"}>{message}</div>
-            ) : null}
 
             {status === "loading" ? (
               <div className="loading-grid" aria-label="Loading recipes" />

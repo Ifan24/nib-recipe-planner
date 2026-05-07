@@ -15,7 +15,7 @@ export function RecipeCard({ recipe, onSelectRecipe }: RecipeCardProps) {
             src={recipe.thumbnail}
             alt={recipe.title}
             fill
-            sizes="(max-width: 800px) 100vw, 25vw"
+            sizes="(max-width: 800px) 100vw, (max-width: 1100px) 50vw, 33vw"
             unoptimized
           />
         </span>
