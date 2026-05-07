@@ -29,6 +29,7 @@ export function AppHeader({
           className={currentView === "search" ? "nav-button active" : "nav-button"}
           type="button"
           onClick={onShowSearch}
+          aria-current={currentView === "search" ? "page" : undefined}
         >
           search
         </button>
@@ -37,6 +38,7 @@ export function AppHeader({
           type="button"
           onClick={onSurpriseMe}
           disabled={isLoadingSurprise}
+          aria-busy={isLoadingSurprise || undefined}
         >
           {isLoadingSurprise ? "finding..." : "surprise me"}
         </button>
@@ -44,9 +46,19 @@ export function AppHeader({
           className={currentView === "shopping-list" ? "nav-button active" : "nav-button"}
           type="button"
           onClick={onShowShoppingList}
+          aria-current={currentView === "shopping-list" ? "page" : undefined}
+          aria-label={
+            shoppingListCount > 0
+              ? `view my shopping list, ${shoppingListCount} items`
+              : "view my shopping list"
+          }
         >
           view my shopping list
-          {shoppingListCount > 0 ? <span className="nav-count">{shoppingListCount}</span> : null}
+          {shoppingListCount > 0 ? (
+            <span className="nav-count" aria-hidden="true">
+              {shoppingListCount}
+            </span>
+          ) : null}
         </button>
       </nav>
     </header>

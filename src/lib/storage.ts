@@ -10,7 +10,11 @@ export function readShoppingList(): ShoppingListItem[] {
     return [];
   }
 
-  return parseStoredShoppingList(window.localStorage.getItem(SHOPPING_LIST_STORAGE_KEY));
+  try {
+    return parseStoredShoppingList(window.localStorage.getItem(SHOPPING_LIST_STORAGE_KEY));
+  } catch {
+    return [];
+  }
 }
 
 export function writeShoppingList(items: ShoppingListItem[]): void {
@@ -18,7 +22,11 @@ export function writeShoppingList(items: ShoppingListItem[]): void {
     return;
   }
 
-  window.localStorage.setItem(SHOPPING_LIST_STORAGE_KEY, serializeShoppingList(items));
+  try {
+    window.localStorage.setItem(SHOPPING_LIST_STORAGE_KEY, serializeShoppingList(items));
+  } catch {
+    // Ignore storage failures in private browsing or quota-limited environments.
+  }
 }
 
 export function clearShoppingList(): void {
@@ -26,5 +34,9 @@ export function clearShoppingList(): void {
     return;
   }
 
-  window.localStorage.removeItem(SHOPPING_LIST_STORAGE_KEY);
+  try {
+    window.localStorage.removeItem(SHOPPING_LIST_STORAGE_KEY);
+  } catch {
+    // Ignore storage failures in private browsing or quota-limited environments.
+  }
 }

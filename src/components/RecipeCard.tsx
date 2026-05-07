@@ -9,11 +9,15 @@ type RecipeCardProps = {
 export function RecipeCard({ recipe, onSelectRecipe }: RecipeCardProps) {
   return (
     <article className="recipe-card">
-      <button type="button" onClick={() => onSelectRecipe(recipe)}>
+      <button
+        type="button"
+        onClick={() => onSelectRecipe(recipe)}
+        aria-label={`View ${recipe.title} recipe, ${recipe.category}, ${recipe.area}`}
+      >
         <span className="recipe-card-image">
           <Image
             src={recipe.thumbnail}
-            alt={recipe.title}
+            alt=""
             fill
             sizes="(max-width: 800px) 100vw, (max-width: 1100px) 50vw, 33vw"
             unoptimized

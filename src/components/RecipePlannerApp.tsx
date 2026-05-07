@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getRandomRecipe, searchRecipes } from "@/lib/mealdb";
 import { addRecipeToShoppingList } from "@/lib/shopping-list";
 import { clearShoppingList, readShoppingList, writeShoppingList } from "@/lib/storage";
@@ -31,16 +31,12 @@ export function RecipePlannerApp() {
     return () => window.cancelAnimationFrame(frameId);
   }, []);
 
-  function saveShoppingList(items: ShoppingListItem[]) {
-    setShoppingList(items);
-    writeShoppingList(items);
-  }
-
   async function handleSearch() {
     const trimmedQuery = query.trim();
 
     if (!trimmedQuery) {
       setRecipes([]);
+      setStatus("idle");
       setMessage("Enter a recipe search term to begin.");
       return;
     }
@@ -69,6 +65,7 @@ export function RecipePlannerApp() {
     try {
       const recipe = await getRandomRecipe();
       setSelectedRecipe(recipe);
+      setStatus("idle");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Something went wrong.");
       setStatus("error");
@@ -77,29 +74,52 @@ export function RecipePlannerApp() {
     }
   }
 
-  function handleAddToShoppingList(recipe: Recipe) {
-    const nextList = addRecipeToShoppingList(shoppingList, recipe);
-    saveShoppingList(nextList);
-    setMessage(`${recipe.title} was added to your shopping list.`);
-  }
+  const handleShowSearch = useCallback(() => {
+    setView("search");
+  }, []);
 
-  function handleClearShoppingList() {
+  const handleShowShoppingList = useCallback(() => {
+    setView("shopping-list");
+  }, []);
+
+  const handleSelectRecipe = useCallback((recipe: Recipe) => {
+    setSelectedRecipe(recipe);
+  }, []);
+
+  const handleCloseRecipe = useCallback(() => {
+    setSelectedRecipe(null);
+  }, []);
+
+  const handleAddToShoppingList = useCallback((recipe: Recipe) => {
+    setShoppingList((currentItems) => {
+      const nextList = addRecipeToShoppingList(currentItems, recipe);
+      writeShoppingList(nextList);
+      return nextList;
+    });
+    setStatus("idle");
+    setMessage(`${recipe.title} was added to your shopping list.`);
+  }, []);
+
+  const handleClearShoppingList = useCallback(() => {
     clearShoppingList();
     setShoppingList([]);
-  }
+  }, []);
 
   return (
     <div className="app-shell">
+      <a className="skip-link" href="#main-content">
+        Skip to main content
+      </a>
       <AppHeader
         currentView={view}
         isLoadingSurprise={isLoadingSurprise}
         shoppingListCount={shoppingList.length}
-        onShowSearch={() => setView("search")}
-        onShowShoppingList={() => setView("shopping-list")}
+        onShowSearch={handleShowSearch}
+        onShowShoppingList={handleShowShoppingList}
         onSurpriseMe={handleSurpriseMe}
       />
 
-      <main>
+      <main id="main-content">
         {view === "search" ? (
           <section className="search-panel">
             <div className="search-stage">
@@ -122,30 +142,44 @@ export function RecipePlannerApp() {
               />
 
               {message ? (
-                <div className={status === "error" ? "notice error" : "notice"}>{message}</div>
+                <div
+                  className={status === "error" ? "notice error" : "notice"}
+                  role={status === "error" ? "alert" : "status"}
+                  aria-live={status === "error" ? "assertive" : "polite"}
+                  aria-atomic="true"
+                >
+                  {message}
+                </div>
               ) : null}
             </div>
 
             {status === "loading" ? (
-              <div className="loading-grid" aria-label="Loading recipes" />
+              <div
+                className="loading-grid"
+                role="status"
+                aria-live="polite"
+                aria-label="Loading recipes"
+              >
+                <span className="sr-only">Loading recipes...</span>
+              </div>
             ) : null}
 
             {recipes.length > 0 && status !== "loading" ? (
-              <RecipeGrid recipes={recipes} onSelectRecipe={setSelectedRecipe} />
+              <RecipeGrid recipes={recipes} onSelectRecipe={handleSelectRecipe} />
             ) : null}
           </section>
         ) : (
           <ShoppingListView
             items={shoppingList}
             onClearList={handleClearShoppingList}
-            onBackToSearch={() => setView("search")}
+            onBackToSearch={handleShowSearch}
           />
         )}
       </main>
 
       <RecipeModal
         recipe={selectedRecipe}
-        onClose={() => setSelectedRecipe(null)}
+        onClose={handleCloseRecipe}
         onAddToShoppingList={handleAddToShoppingList}
       />
     </div>

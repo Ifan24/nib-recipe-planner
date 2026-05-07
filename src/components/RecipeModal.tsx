@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Recipe } from "@/types/recipes";
 
 type RecipeModalProps = {
@@ -10,15 +10,67 @@ type RecipeModalProps = {
   onAddToShoppingList: (recipe: Recipe) => void;
 };
 
+const FOCUSABLE_SELECTOR = [
+  "a[href]",
+  "button:not([disabled])",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  '[tabindex]:not([tabindex="-1"])',
+].join(",");
+
 export function RecipeModal({ recipe, onClose, onAddToShoppingList }: RecipeModalProps) {
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLElement>(null);
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
+  const [addedRecipeId, setAddedRecipeId] = useState<string | null>(null);
+
   useEffect(() => {
     if (!recipe) {
       return undefined;
     }
 
+    restoreFocusRef.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    closeButtonRef.current?.focus();
+
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
+        event.preventDefault();
         onClose();
+        return;
+      }
+
+      if (event.key !== "Tab") {
+        return;
+      }
+
+      const dialogElement = dialogRef.current;
+
+      if (!dialogElement) {
+        return;
+      }
+
+      const focusableElements = Array.from(
+        dialogElement.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
+      ).filter((element) => element.offsetParent !== null);
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (!firstElement || !lastElement) {
+        event.preventDefault();
+        return;
+      }
+
+      if (event.shiftKey && document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+        return;
+      }
+
+      if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
       }
     }
 
@@ -28,6 +80,7 @@ export function RecipeModal({ recipe, onClose, onAddToShoppingList }: RecipeModa
     return () => {
       document.body.classList.remove("modal-open");
       window.removeEventListener("keydown", handleKeyDown);
+      restoreFocusRef.current?.focus();
     };
   }, [onClose, recipe]);
 
@@ -35,14 +88,32 @@ export function RecipeModal({ recipe, onClose, onAddToShoppingList }: RecipeModa
     return null;
   }
 
+  const currentRecipe = recipe;
+  const addStatus =
+    addedRecipeId === currentRecipe.id
+      ? `${currentRecipe.title} was added to your shopping list.`
+      : "";
+
+  function handleAddToShoppingList() {
+    onAddToShoppingList(currentRecipe);
+    setAddedRecipeId(currentRecipe.id);
+  }
+
   return (
-    <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
+    <div className="modal-backdrop" role="presentation">
+      <button
+        className="modal-backdrop-hitarea"
+        type="button"
+        tabIndex={-1}
+        aria-hidden="true"
+        onClick={onClose}
+      />
       <section
+        ref={dialogRef}
         className="recipe-modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="recipe-modal-title"
-        onMouseDown={(event) => event.stopPropagation()}
       >
         <div className="modal-media">
           <Image
@@ -62,7 +133,13 @@ export function RecipeModal({ recipe, onClose, onAddToShoppingList }: RecipeModa
               </p>
               <h2 id="recipe-modal-title">{recipe.title}</h2>
             </div>
-            <button className="icon-button" type="button" onClick={onClose} aria-label="Close">
+            <button
+              ref={closeButtonRef}
+              className="icon-button"
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+            >
               <svg aria-hidden="true" viewBox="0 0 24 24">
                 <path d="M6 6l12 12M18 6L6 18" />
               </svg>
@@ -73,7 +150,7 @@ export function RecipeModal({ recipe, onClose, onAddToShoppingList }: RecipeModa
             <button
               className="primary-button"
               type="button"
-              onClick={() => onAddToShoppingList(recipe)}
+              onClick={handleAddToShoppingList}
             >
               add to my shopping list
             </button>
@@ -86,6 +163,11 @@ export function RecipeModal({ recipe, onClose, onAddToShoppingList }: RecipeModa
               <a href={recipe.sourceUrl} target="_blank" rel="noreferrer">
                 Source
               </a>
+            ) : null}
+            {addStatus ? (
+              <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+                {addStatus}
+              </p>
             ) : null}
           </div>
 
