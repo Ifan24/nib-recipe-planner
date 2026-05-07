@@ -63,7 +63,9 @@ export function RecipeModal({ recipe, onClose, onAddToShoppingList }: RecipeModa
               <h2 id="recipe-modal-title">{recipe.title}</h2>
             </div>
             <button className="icon-button" type="button" onClick={onClose} aria-label="Close">
-              ×
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
             </button>
           </div>
 
